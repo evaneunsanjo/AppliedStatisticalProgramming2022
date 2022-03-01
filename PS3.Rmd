@@ -1,6 +1,8 @@
 ---
-title: "Applied Statistical Programming - Spring 2022"
+title: "Applied Statistical Programming Problem Set 3 Submission "
 output: pdf_document
+author: Evan Jo
+
 ---
 
 ```{r setup, include=FALSE}
@@ -44,5 +46,10 @@ For this problem set, you will not solve the Monty Hall Problem, but you will ha
 \end{enumerate}
 
 ```{r tidy=TRUE}
-# Code
+## Define a a new class that takes a value 
+numbers <- c(1:3)
+#defining objects of this class 
+door <- list(choice = numbers)
+#assigning a class 
+class(door)<-"door"
 ```
