@@ -47,9 +47,11 @@ For this problem set, you will not solve the Monty Hall Problem, but you will ha
 
 ```{r tidy=TRUE, include=TRUE, echo=TRUE}
 ## Define a a new class that takes a value 
-numbers <- c(1:3)
+
+# defining range of picks available for the player 
+pick = c(1:3)
 #defining objects of this class 
-door <- list(choice = numbers)
+door <- list(pick)
 #assigning a class 
 class(door)<-"door"
 # does this work? yes 
@@ -62,37 +64,68 @@ PlayGame <- function(door){
 }
 
 # a method that is for class(door) but belong to the generic 
-PlayGame.underhood <- function(choice){ 
+PlayGame.play <- function(pick){ 
   #draw a random number that represents the door behind which the car is hidden,
-  prize <- as.numeric(sample(numbers), 1)
+  prize <- sample(1:3, 1)
   # compare the two numbers 
   if(pick == prize){
     # print a message congratulating a winning candidate 
-    return("Congratulation!")
+    return("Congratulation! It's a new car!")
     # sympathies otherwise 
   }else{return("Too bad. It's a goat.")}
+}
+
+## building a construction function (slide 21)
+new_door <- function(pick){
+  output<-list(door=pick) # the user creates a door object 
+  class(output)<-"door"
+  return(output)
 }
   
 ## building a validation function (Slide 18)
 
-validate_door <-function(choice){
-  if(! is.numeric(choice) | choice %i!n% c(1:3)){
-   stop("Please insert an integer to play.")
+validate_door <-function(pick){
+  if(! pick==round(pick)){  # checks whether the value stored in \texttt{door} is actually an integer
+   stop("Please insert a valid integer to play.")
   }
-  return(choice)
+    return("It's an integer.")
 }
 
+# tests 
+validate_door(pick = 1)
 
-doorchoice <- new_door(1)
-validate_door(doorchoice)
 
-## building a construction function (slide 21)
-new_door <- function(choice){
-  output<-list(door=choice)
-  class(output)<-"door"
-  return(output)
+# returns an error message 
+validate_door(pick = 0.5)
+# Error in validate_door(pick = 0.5) : Please insert a valid integer to play.
+
+
+
+## putting it all together 
+
+PlayGame.final <- function(pick){ 
+  validate_door(pick)
+  
+  choice <- new_door(pick)
+  
+  prize <- sample(1:3, 1)
+  # compare the two numbers 
+  if(choice == prize){
+    # print a message congratulating a winning candidate 
+    return("Congratulation! It's a new car!")
+    # sympathies otherwise 
+  }else{return("Too bad. It's a goat.")}
 }
+  
 
+
+## testing this works 
+set.seed(98)
+draw <- sample(1:3, 1)
+PlayGame.final(draw)
+
+# game stops if it is not an integer
+PlayGame.final(pick = 0.7)
 
 
     
