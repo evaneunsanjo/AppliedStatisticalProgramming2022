@@ -44,6 +44,70 @@ First, create two new objects \texttt{polls} and \texttt{Endorsements}. Then com
   \item Compare the candidate names in the two datasets and find instances where the a candidates name is spelled differently i.e. Bernard vs. Bernie. Using only \texttt{dplyr} functions, make these the same across datasets. 
   \item Now combine the two datasets by candidate name using \texttt{dplyr} (there will only be five candidates after joining).
   \item Create a variable which indicates the number of endorsements for each of the five candidates using \texttt{dplyr}.
+  \end{itemize}
+  
+  
+```{r q01, include=TRUE, echo=TRUE}
+# two new objects are created by running the given code 
+polls <- read_csv(url)
+Endorsements <- endorsements_2020 # from the fiverthirtyeight package
+
+# changing variable name to candidate name 
+Endorsements <- Endorsements %>%
+  rename(candidate_name = endorsee)
+
+# changing the dataframe into a tibble 
+Endorsements <- as_tibble(Endorsements)
+
+# filtering down to six candidates 
+polls_six <- polls %>%  filter (candidate_name %in% c("Amy Klobuchar", "Bernard Sanders", "Elizabeth Warren",
+                                         "Joseph R. Biden Jr.", "Michael Bloomberg", "Pete Buttigieg" ))
+
+# keep only five variables 
+polls_six <- polls_six %>% select(candidate_name, sample_size, start_date, party, pct)
+
+
+  # check for any differences in candidate names
+unique(polls_six$candidate_name)
+unique(Endorsements$candidate_name)
+
+  # so there is a problem with Bernie and Joe. We'll opt for the spellings in polls data 
+Endorsements_names <- Endorsements %>%
+  mutate(candidate_name = ifelse(candidate_name == "Joe Biden", "Joseph R. Biden Jr.",
+                                 ifelse(candidate_name == "Bernie Sanders", "Bernard Sanders", candidate_name)))
+
+  # checking to see if they were fixed: 
+unique(Endorsements_names$candidate_name)
+
+# combine datasets with only five candidates 
+combined <- polls_six %>% 
+  inner_join(Endorsements_names, by="candidate_name")
+
+  # are there only five candidates? yes! because we used inner_join 
+unique(combined$candidate_name)
+
+# creating numbers-of-endorsement variable: I create a separate dataset of counts first
+no_endorsements <- Endorsements_names %>%
+  filter(candidate_name %in% c("Amy Klobuchar", "Bernard Sanders","Elizabeth Warren", 
+                               "Joseph R. Biden Jr.", "Pete Buttigieg")) %>% #limiting to only the given five 
+  group_by(candidate_name) %>% # we will count per candidate 
+  summarise(no_endorsements = sum(!is.na(endorser))) # what are we counting? number of endorsers 
+
+unique(no_endorsements$no_endorsements)
+
+# as a variable in the merged dataset
+combined <- combined %>% 
+  left_join(no_endorsements, by="candidate_name")
+  # I check to see if they match the number of endorsement as in the count dataset 
+unique(combined$no_endorsements)
+
+
+
+
+```
+
+  
+  \begin{itemize }
   \item Plot the number of endorsement each of the 5 candidates have using \texttt{ggplot()}. Save your plot as an object \texttt{p}.
   \item Rerun the previous line as follows: \texttt{p + theme\_dark()}. Notice how you can still customize your plot without rerunning the plot with new options.
   \item Now, using the knowledge from the last step change the label of the X and Y axes to be more informative, add a title. Save the plot in your forked repository.
