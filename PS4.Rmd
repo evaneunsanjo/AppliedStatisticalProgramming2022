@@ -234,7 +234,8 @@ Corpus.clean <- Corpus %>%
 library(wordcloud)
 
 
-  #there were no variations in my random colors, so I referenced RDocumentation Wordcloud page to learn how to set a color palette 
+  #there were no variations in my random colors, 
+      #so I referenced RDocumentation Wordcloud page to learn how to set a color palette 
   #designating a palette 
 pal <- brewer.pal(9,"BuGn")
 
@@ -249,31 +250,34 @@ plot <- wordcloud(Corpus.clean, #body of words
 pdf("top50wordcloud.pdf")
 
 
-## create a document-term matrix with the given argument included 
-DTM <- DocumentTermMatrix(Corpus.clean, control = list(weighting = weightTfIdf))
+```
 
+
+```{r, echo=TRUE, include=TRUE}
+## create a document-term matrix with the given argument included 
+DTM <- DocumentTermMatrix(Corpus, control = list(weighting = weightTfIdf))
 
 ## 50 words with the the highest tf.idf scores using a lower frequency bound of .8.
-  #to understand what tf.idf scores aim to achieve, I referenced \url{https://www.tidytextmining.com/tfidf.html#the-bind_tf_idf-function} page 
 
-  # to calculate tf.idf score we must convert DTM to a dataframe, but as of now it is too huge. 
-  # so we shrink the size of the matrix. Here I referenced classmate Alma's codes on how to achieve this. 
+  #to make the matrix function more efficiently, we remove sparse terms. Classmate Cecilia taught me how to do this 
 dtm.smaller <- removeSparseTerms(DTM, 0.9)
-dtm.df <- as.matrix(dtm.smaller)
 
-## using the new matrix, we calculate tf.idf score to rank words 
+library(tidytext)
+dtm.df<- tidy(dtm.smaller) # to make operation easier, we make a tiny 
 
-dtm.highest <- dtm.df %>%
-  colSums() %>%              #get frequency of each word 
-  sort(decreasing = TRUE) %>% #reorder 
-  data.frame() %>%
-  rename("tf.idf" = ".") %>%    #set tf.idf lower frequency bound;
-                              #tf.idf scores takes into account how the given words are used and not just their frequencies  
-  filter("tf.idf" >= 0.8) %>%
-  head(50) #get highest ranking 50 words 
+  #the function immediately below was what I wanted to do but does not work
+dtm.alternate <- dtm.df %>% 
+  arrange(desc(count))  %>%
+  distinct(term, .keep_all = TRUE) %>%
+          #set tf.idf lower frequency bound; tf.idf scores takes into account how the given words are used and not just their frequencies
+  filter(count > 0.8) %>%
+           #get highest ranking 50 words 
+  slice_max(count, n = 50)
 
-
-
+ # this function does work but does not produce meaningful list of words 
+dtm.df %>% 
+  filter(count > 0.8) %>%
+  slice_max(count, n = 50)
 
 
 ```
