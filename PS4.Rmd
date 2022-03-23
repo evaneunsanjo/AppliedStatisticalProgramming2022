@@ -130,12 +130,46 @@ library(wordcloud)
 trump_tweets_url <- 'https://politicaldatascience.com/PDS/Datasets/trump_tweets.csv'
 tweets <- read_csv(trump_tweets_url)
 ```
-
 \begin{itemize}
   \item First separate the \texttt{created\_at} variable into two new variables where the date and the time are in separate columns. After you do that, then report the range of dates that is in this dataset.
   \item Using \texttt{dplyr} subset the data to only include original tweets (remove retweents) and show the text of the President's \textbf{top 5} most popular and most retweeted tweets. (Hint: The \texttt{match} function can help you find the index once you identify the largest values.) 
-  \item Create a \textit{corpus} of the tweet content and put this into the object \texttt{Corpus} using the \texttt{tm} (text mining) package. (Hint: Do the assigned readings.)
-  \item Remove extraneous whitespace, remove numbers and punctuation, convert everything to lower case and remove 'stop words' that have little substantive meaning (the, a, it).
-  \item Now create a \texttt{wordcloud} to visualize the top 50 words the President uses in his tweets. Use only words that occur at least three times. Display the plot with words in random order and use 50 random colors. Save the plot into your forked repository.\item Create a \textit{document term matrix} called \texttt{DTM} that includes the argument \texttt{ control = list(weighting = weightTfIdf)}
-  \item Finally, report the 50 words with the the highest tf.idf scores using a lower frequency bound of .8.
-\end{itemize}
+  \end{itemize}
+
+
+```{r q02, include=TRUE, echo=TRUE, tidy=TRUE}
+# two new variables 
+tweets.sep <- tweets %>% 
+  separate(created_at, c("date_created", "time_created"), sep=" ")
+
+# to get the range of the dates, i first create a separate variable "date" that codes the dates differently 
+tweets.sep$date <- as.Date(tweets.sep$date_created, format="%m/%d/%Y")
+range(tweets.sep$date) # "2014-01-01" "2020-02-14"
+
+# subset the data to include only the original tweets, using is_retweet variable 
+originaltweets <- tweets %>% 
+  filter(!is_retweet)
+
+# top five most 'liked' tweets 
+topfivelikes <- originaltweets %>% 
+  slice_max(favorite_count, n=5) 
+
+  #text of them 
+topfivelikes$text
+
+#top five most 'retweeted' tweets 
+
+topfivert <- originaltweets %>% 
+  slice_max(retweet_count, n=5) 
+
+  #text of them 
+topfivert$text
+
+#find index using AND condition to show the text of top 5 most popular and most retweeted tweets. 
+common <- originaltweets %>% 
+  filter(favorite_count %in% topfivelikes$favorite_count | retweet_count %in% topfivert$retweet_count) %>% 
+  select(text)
+
+# for we are creating a corpus of Tweet content, I use texts of Trump's original tweets sans Retweets 
+head(originaltweets$text)
+```
+
