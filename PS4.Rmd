@@ -130,6 +130,7 @@ library(wordcloud)
 trump_tweets_url <- 'https://politicaldatascience.com/PDS/Datasets/trump_tweets.csv'
 tweets <- read_csv(trump_tweets_url)
 ```
+
 \begin{itemize}
   \item First separate the \texttt{created\_at} variable into two new variables where the date and the time are in separate columns. After you do that, then report the range of dates that is in this dataset.
   \item Using \texttt{dplyr} subset the data to only include original tweets (remove retweents) and show the text of the President's \textbf{top 5} most popular and most retweeted tweets. (Hint: The \texttt{match} function can help you find the index once you identify the largest values.) 
@@ -171,5 +172,77 @@ common <- originaltweets %>%
 
 # for we are creating a corpus of Tweet content, I use texts of Trump's original tweets sans Retweets 
 head(originaltweets$text)
+```
+
+
+\begin{itemize}
+  \item Create a \textit{corpus} of the tweet content and put this into the object \texttt{Corpus} using the \texttt{tm} (text mining) package. (Hint: Do the assigned readings.)
+  \item Remove extraneous whitespace, remove numbers and punctuation, convert everything to lower case and remove 'stop words' that have little substantive meaning (the, a, it).
+  \item Now create a \texttt{wordcloud} to visualize the top 50 words the President uses in his tweets. Use only words that occur at least three times. Display the plot with words in random order and use 50 random colors. Save the plot into your forked repository.
+  \item Create a \textit{document term matrix} called \texttt{DTM} that includes the argument \texttt{ control = list(weighting = weightTfIdf)}
+  \item Finally, report the 50 words with the the highest tf.idf scores using a lower frequency bound of .8.
+\end{itemize}
+
+```{r q02corpus, include=TRUE, echo=TRUE, tidy=TRUE}
+
+## creating corpus 
+library(tm)
+Corpus <- Corpus(VectorSource(as.vector(originaltweets$text))) 
+
+## removal using various commands of tm package: resulting new corpus is smaller in size  
+Corpus.clean <- Corpus %>%
+  tm_map(stripWhitespace) %>% #remove extraneous whitespace 
+  tm_map(removeNumbers) %>% #remove numbers 
+  tm_map(removePunctuation) %>% #remove punctuations 
+  tm_map(content_transformer(tolower)) %>% #convert to lowercase 
+  tm_map(removeWords, stopwords(kind = "en")) #remove stop words 
+
+
+#creating wordcloud 
+library(wordcloud)
+
+
+  #there were no variations in my random colors, so I referenced RDocumentation Wordcloud page to learn how to set a color palette 
+  #designating a palette 
+pal <- brewer.pal(9,"BuGn")
+
+##creating a plot using Wordcloud package 
+plot <- wordcloud(Corpus.clean, #body of words 
+          min.freq = 3, # should appear at least  three times 
+          max.words = 50, # top 50 words 
+          random.order = TRUE, #"in random order 
+          random.color = TRUE, colors = pal) #"in random colors" 
+
+##save the plot 
+pdf("top50wordcloud.pdf")
+
+
+## create a document-term matrix with the given argument included 
+DTM <- DocumentTermMatrix(Corpus.clean, control = list(weighting = weightTfIdf))
+
+
+## 50 words with the the highest tf.idf scores using a lower frequency bound of .8.
+  #to understand what tf.idf scores aim to achieve, I referenced \url{https://www.tidytextmining.com/tfidf.html#the-bind_tf_idf-function} page 
+
+  # to calculate tf.idf score we must convert DTM to a dataframe, but as of now it is too huge. 
+  # so we shrink the size of the matrix. Here I referenced classmate Alma's codes on how to achieve this. 
+dtm.smaller <- removeSparseTerms(DTM, 0.9)
+dtm.df <- as.matrix(dtm.smaller)
+
+## using the new matrix, we calculate tf.idf score to rank words 
+
+dtm.highest <- dtm.df %>%
+  colSums() %>%              #get frequency of each word 
+  sort(decreasing = TRUE) %>% #reorder 
+  data.frame() %>%
+  rename("tf.idf" = ".") %>%    #set tf.idf lower frequency bound;
+                              #tf.idf scores takes into account how the given words are used and not just their frequencies  
+  filter("tf.idf" >= 0.8) %>%
+  head(50) #get highest ranking 50 words 
+
+
+
+
+
 ```
 
