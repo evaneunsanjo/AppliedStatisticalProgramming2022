@@ -114,6 +114,26 @@ unique(combined$no_endorsements)
 \end{itemize}
 
 
+
+```{r q01plot, include=TRUE, echo=TRUE}
+# plot the number of endorsements and save as an object 
+p <- ggplot(data=no_endorsements, mapping = aes(x = candidate_name, y = no_endorsements)) +
+  geom_bar(stat = "identity")
+print(p)
+
+# theme_dark 
+p + theme_dark()
+
+# adding titles and labels 
+p + labs(title="Candidate Endorsements", x="Candidate Name", y="Number of Endorsements")
+
+# save the plot 
+ggsave("2016Candidate.endorsements.png")
+
+```
+
+
+
 \section*{Text-as-Data with \texttt{tidyverse}}
 
 For this question you will be analyzing Tweets from President Trump for various characteristics. Load in the following packages and data:
