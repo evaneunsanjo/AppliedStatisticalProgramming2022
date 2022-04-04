@@ -73,5 +73,6 @@ setMethod(f = "print", signature(x = "Trapezoid"),
 )
 
 
-# 1
+
+# devtools::document()
 
