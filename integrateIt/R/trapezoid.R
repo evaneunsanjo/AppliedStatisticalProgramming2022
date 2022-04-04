@@ -1,3 +1,8 @@
+# note: Hi Ryan, my package used to work, albeit clunkly, but after I tried to merge the local repository with the class repository it started
+# returning the error of
+# "New project 'mypackage' is nested inside an existing project './', which is rarely a good idea."
+# and does not let me document it using devtools. as a result, I am missing all my DESCRIPTION and .rd files.
+# Of course there is no 'mypackage' in the folder, as you'd be able to see. I could not fix this error by Googling. I am sorry.
 
 
 #' Trapezoid as S4 Class
