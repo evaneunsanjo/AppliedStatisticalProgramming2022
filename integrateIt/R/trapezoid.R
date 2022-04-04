@@ -1,52 +1,52 @@
 
-#' Simpson as S4 Class
+
+#' Trapezoid as S4 Class
 #'
-#' objects are created with the function \code{integrateIt}
+#' An object of classes 'Trapezoid' has following slots:
 #'
-#' An object of classes 'Simpson' has following slots:
-#'
-#'\itemize{
-#' \item \code{x} a vector of inputs
-#' \item \code{y} a function to be integrated
-#' \item \code{a} starting value of integration
-#' \item \code{b} end value of the integration
-#' \item \code{Rule} rule to be used in the approximation
-#'\item \code{S} result of the approximation using Simpson rule
-#'}
+#' @slot x a vector of inputs
+#' @slot y a function to be integrated
+#' @slot a starting value of integration
+#' @slot b end value of the integration
+#' @slot Rule rule to be used in the approximation
+#' @slot T result of the approximation using Trapezoid rule
+#' @slot S result of the approximation using Simpson rule
 #'
 #' @author Eunsan Jo
-#' @rdname Simpson
+#' @rdname Trapezoid
 #'
 #' @export
-setClass(Class="Simpson",
+setClass(Class="Trapezoid",
          representation = representation(
-           x = "numeric",
-           y = "function",
+            y = "function",
+            x = "numeric",
            a ="numeric",
            b = "numeric",
            Rule  = "character",
-           S = "numeric"
+           T = "numeric"
          ),
          prototype = prototype(
-           x = numeric(),
-           y = function(x){return(x)},
+          y = function(x){return(x)},
+          x = numeric(),
            a = numeric(),
            b = numeric(),
            Rule  = character(),
-           S = numeric()
+           T = numeric()
          )
 )
 
+
 #' @export
-setMethod("initialize", "Simpson",  function(.Object, ...) {
+setMethod("initialize", "Trapezoid",  function(.Object, ...) {
   value = callNextMethod()
   validObject(value)
   return(value)
 })
 
+
 #' @export
 #set a validity test again heavily borrowing from lecture slides
-setValidity("Simpson", function(object){
+setValidity("Trapezoid", function(object){
 
   # tests if x is of numeric vector
   test_x <- is.numeric(object@x)
@@ -63,12 +63,15 @@ setValidity("Simpson", function(object){
 )
 
 
-#print function
+
 #' @export
-setMethod(f = "print", signature(x = "Simpson"),
+#print function
+setMethod(f = "print", signature(x = "Trapezoid"),
           definition = function(x){
             print(x@T)
           }
 )
 
-# devtools::document()
+
+# 1
+
